@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Reading Exam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --correct: #22c55e;
+            --incorrect: #ef4444;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body.light-theme {
+            --dark: #f1f5f9;
+            --darker: #e2e8f0;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .light-theme header {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .light-theme .logo {
+            color: var(--dark);
+        }
+
+        .exam-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .timer {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer i {
+            color: var(--danger);
+        }
+
+        .camera-feed-header {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+
+        .camera-feed-header video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .theme-toggle {
+            background: rgba(37, 99, 235, 0.15);
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(37, 99, 235, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 180px);
+            padding: 30px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Exam Layout */
+        .exam-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 992px) {
+            .exam-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Passage Section */
+        .passage-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .light-theme .passage-section {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .passage-content {
+            line-height: 1.8;
+            font-size: 17px;
+        }
+
+        .passage-content p {
+            margin-bottom: 20px;
+        }
+
+        /* Questions Section */
+        .questions-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .light-theme .questions-section {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+        }
+
+        .question {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .question:last-child {
+            border-bottom: none;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .light-theme .option {
+            background: rgba(241, 245, 249, 0.5);
+        }
+
+        .option:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(29, 78, 216, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            background: rgba(148, 163, 184, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-secondary);
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-size: 16px;
+            margin-top: 40px;
+        }
+
+        .light-theme footer {
+            background: rgba(255, 255, 255, 0.9);
+            color: #475569;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        /* Section Tabs */
+        .section-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-tab {
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text);
+        }
+
+        .light-theme .section-tab {
+            background: rgba(241, 245, 249, 0.7);
+        }
+
+        .section-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-theme .modal {
+            background: white;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .modal-text {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        /* Question Types */
+        .matching-headings, .matching-features, .matching-sentence-endings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .matching-item {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .short-answer input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.5);
+            color: var(--text);
+        }
+
+        .light-theme .short-answer input {
+            background: rgba(241, 245, 249, 0.7);
+            color: #1e293b;
+        }
+
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .progress-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            background: rgba(148, 163, 184, 0.2);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .progress-dot.answered {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-light);
+        }
+
+        .progress-dot.current {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .exam-info {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .matching-headings, .matching-features, .matching-sentence-endings {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-indicator {
+                gap: 5px;
+            }
+            
+            .progress-dot {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+        }
+
+        /* Highlight styles */
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            padding: 2px 1px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .highlight.yellow { background-color: rgba(255, 255, 0, 0.3); }
+        .highlight.green { background-color: rgba(0, 255, 0, 0.3); }
+        .highlight.blue { background-color: rgba(0, 0, 255, 0.3); }
+        .highlight.pink { background-color: rgba(255, 0, 255, 0.3); }
+        
+        /* Note indicator */
+        .note-indicator {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .note-indicator::after {
+            content: "📝";
+            font-size: 12px;
+            margin-left: 2px;
+            vertical-align: super;
+        }
+        
+        /* Context menu */
+        .context-menu {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-width: 150px;
+            display: none;
+        }
+        
+        .light-theme .context-menu {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+        }
+        
+        .context-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .light-theme .context-menu-item {
+            color: var(--text);
+        }
+        
+        .context-menu-item:hover {
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+        
+        .color-options {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            z-index: 1001;
+        }
+        
+        .light-theme .color-options {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+        }
+        
+        .color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .color-option.yellow { background-color: rgba(255, 255, 0, 0.5); }
+        .color-option.green { background-color: rgba(0, 255, 0, 0.5); }
+        .color-option.blue { background-color: rgba(0, 0, 255, 0.5); }
+        .color-option.pink { background-color: rgba(255, 0, 255, 0.5); }
+        
+        /* Note modal */
+        .note-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            z-index: 1002;
+            width: 350px;
+            max-width: 90%;
+        }
+        
+        .light-theme .note-modal {
+            background: white;
+            border: 1px solid var(--border);
+        }
+        
+        .note-modal textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.5);
+            color: var(--text);
+            border: 1px solid var(--border);
+            resize: vertical;
+        }
+        
+        .light-theme .note-modal textarea {
+            background: rgba(241, 245, 249, 0.7);
+            color: #1e293b;
+        }
+        
+        .note-modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Note tooltip */
+        .note-tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1003;
+            max-width: 250px;
+            display: none;
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-globe-americas"></i>
+                <span>IELTS Exam Platform</span>
+            </div>
+            <div class="exam-info">
+                <div class="timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="exam-timer">60:00</span>
+                </div>
+                <div class="camera-feed-header">
+                    <video id="header-camera" autoplay muted></video>
+                </div>
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="section-tabs">
+            <div class="section-tab active" data-section="1">Section 1</div>
+            <div class="section-tab" data-section="2">Section 2</div>
+            <div class="section-tab" data-section="3">Section 3</div>
+        </div>
+        
+        <div class="exam-container">
+            <div class="passage-section">
+                <h3 class="section-title">
+                    <i class="fas fa-book-open"></i>
+                    Reading Passage - Section 1
+                </h3>
+                <div class="passage-content">
+                    <h4>Space Travel: Humanity's Greatest Adventure</h4>
+                    <p>Human space travel is one of the greatest scientific achievements of the 20th century. The first artificial satellite, "Sputnik 1", launched into orbit by the Soviet Union in 1957, was humanity's first step into space. Four years later, on April 12, 1961, Yuri Gagarin orbited the Earth in the "Vostok 1" spacecraft, becoming the first cosmonaut in history.</p>
+                    
+                    <p>The United States developed its own space program and achieved the first manned moon landing in 1969 with the "Apollo 11" mission. Neil Armstrong and Buzz Aldrin became the first humans to set foot on the Moon. This was a major milestone in human history and demonstrated US superiority in space exploration.</p>
+                    
+                    <p>In the modern era, space exploration is increasingly conducted through international cooperation and private sector participation. The International Space Station (ISS) is a joint project of many countries, conducting scientific research with continuous human presence in space. Private companies, including SpaceX and Blue Origin, are working to make access to space more affordable and accessible.</p>
+                </div>
+            </div>
+            
+            <div class="questions-section">
+                <h3 class="section-title">
+                    <i class="fas fa-question-circle"></i>
+                    Questions - Section 1
+                </h3>
+                
+                <div class="questions-list">
+                    <!-- Multiple Choice -->
+                    <div class="question" data-question-id="1">
+                        <div class="question-text">1. In what year was the first artificial satellite launched into orbit?</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q1" value="a"> a) 1955
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="b"> b) 1957
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="c"> c) 1961
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="d"> d) 1969
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- True/False/Not Given -->
+                    <div class="question" data-question-id="2">
+                        <div class="question-text">2. Yuri Gagarin used the Apollo 11 spacecraft for his space flight.</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q2" value="true"> True
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="false"> False
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="not-given"> Not Given
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Matching Headings -->
+                    <div class="question" data-question-id="3">
+                        <div class="question-text">3. Match the following headings with the sections of the text:</div>
+                        <div class="matching-headings">
+                            <div>
+                                <div class="matching-item">A. First space flight</div>
+                                <div class="matching-item">B. Moon landing</div>
+                                <div class="matching-item">C. Modern era</div>
+                            </div>
+                            <div>
+                                <div class="matching-item">
+                                    <select name="q3_a">
+                                        <option value="">Select</option>
+                                        <option value="I">I. International cooperation</option>
+                                        <option value="II">II. Historic achievement</option>
+                                        <option value="III">III. First step</option>
+                                    </select>
+                                </div>
+                                <div class="matching-item">
+                                    <select name="q3_b">
+                                        <option value="">Select</option>
+                                        <option value="I">I. International cooperation</option>
+                                        <option value="II">II. Historic achievement</option>
+                                        <option value="III">III. First step</option>
+                                    </select>
+                                </div>
+                                <div class="matching-item">
+                                    <select name="q3_c">
+                                        <option value="">Select</option>
+                                        <option value="I">I. International cooperation</option>
+                                        <option value="II">II. Historic achievement</option>
+                                        <option value="III">III. First step</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Yes/No/Not Given -->
+                    <div class="question" data-question-id="4">
+                        <div class="question-text">4. According to the text, SpaceX and Blue Origin are government-funded.</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q4" value="yes"> Yes
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="no"> No
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="not-given"> Not Given
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Short Answer -->
+                    <div class="question" data-question-id="5">
+                        <div class="question-text">5. Write the number of people who first set foot on the Moon.</div>
+                        <div class="short-answer">
+                            <input type="text" name="q5" placeholder="Your answer...">
+                        </div>
+                    </div>
+                    
+                    <!-- Summary Completion -->
+                    <div class="question" data-question-id="6">
+                        <div class="question-text">6. Complete the summary below using information from the text:</div>
+                        <p style="margin: 15px 0; line-height: 1.6;">
+                            Human space travel is one of the greatest achievements of the 20th century. The first artificial satellite was launched in <input type="text" name="q6_a" style="width: 80px; padding: 5px;">. The first manned space flight took place in <input type="text" name="q6_b" style="width: 80px; padding: 5px;">. The first Moon landing occurred in <input type="text" name="q6_c" style="width: 80px; padding: 5px;">.
+                        </p>
+                    </div>
+                    
+                    <!-- Matching Sentence Endings -->
+                    <div class="question" data-question-id="7">
+                        <div class="question-text">7. Match the sentence endings:</div>
+                        <div class="matching-sentence-endings">
+                            <div>
+                                <div class="matching-item">A. The first artificial satellite...</div>
+                                <div class="matching-item">B. Yuri Gagarin...</div>
+                                <div class="matching-item">C. The Apollo 11 mission...</div>
+                            </div>
+                            <div>
+                                <div class="matching-item">
+                                    <select name="q7_a">
+                                        <option value="">Select</option>
+                                        <option value="I">I. flew to space in 1961</option>
+                                        <option value="II">II. was launched into orbit in 1957</option>
+                                        <option value="III">III. accomplished the first manned Moon landing</option>
+                                    </select>
+                                </div>
+                                <div class="matching-item">
+                                    <select name="q7_b">
+                                        <option value="">Select</option>
+                                        <option value="I">I. flew to space in 1961</option>
+                                        <option value="II">II. was launched into orbit in 1957</option>
+                                        <option value="III">III. accomplished the first manned Moon landing</option>
+                                    </select>
+                                </div>
+                                <div class="matching-item">
+                                    <select name="q7_c">
+                                        <option value="">Select</option>
+                                        <option value="I">I. flew to space in 1961</option>
+                                        <option value="II">II. was launched into orbit in 1957</option>
+                                        <option value="III">III. accomplished the first manned Moon landing</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Multiple Choice (Multiple Answers) -->
+                    <div class="question" data-question-id="8">
+                        <div class="question-text">8. According to the text, which of the following are true? (Choose two options)</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="checkbox" name="q8" value="a"> a) The first artificial satellite was launched by the USA
+                            </label>
+                            <label class="option">
+                                <input type="checkbox" name="q8" value="b"> b) Yuri Gagarin orbited the Earth
+                            </label>
+                            <label class="option">
+                                <input type="checkbox" name="q8" value="c"> c) The first Moon landing occurred in 1969
+                            </label>
+                            <label class="option">
+                                <input type="checkbox" name="q8" value="d"> d) The International Space Station is managed only by the USA
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- More question types can be added here -->
+                </div>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" id="prev-btn">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="btn" id="next-btn">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                 
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <!-- 40 circles for 40 questions -->
+            <!-- Will be populated dynamically with JavaScript -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 IELTS Exam Platform. All rights reserved. Secure exam environment.</p>
+            <p>IELTS is a registered trademark of Cambridge University ESOL, British Council and IDP Education Australia.</p>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="confirmation-modal">
+        <div class="modal">
+            <h3 class="modal-title">Finish Exam</h3>
+            <p class="modal-text">Are you sure you want to finish the exam? This action cannot be undone. Your answers will be reviewed and your result will be calculated.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" id="highlight-option">
+            <i class="fas fa-highlighter"></i> Highlight
+            <div class="color-options" id="color-options">
+                <div class="color-option yellow" data-color="yellow"></div>
+                <div class="color-option green" data-color="green"></div>
+                <div class="color-option blue" data-color="blue"></div>
+                <div class="color-option pink" data-color="pink"></div>
+            </div>
+        </div>
+        <div class="context-menu-item" id="add-note-option">
+            <i class="fas fa-sticky-note"></i> Add Note
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div class="note-modal" id="note-modal">
+        <h3>Add Note</h3>
+        <textarea id="note-text" placeholder="Write your note here..."></textarea>
+        <div class="note-modal-buttons">
+            <button class="btn btn-secondary" id="note-cancel">Cancel</button>
+            <button class="btn" id="note-save">Save</button>
+        </div>
+    </div>
+
+    <!-- Note Tooltip -->
+    <div class="note-tooltip" id="note-tooltip"></div>
+<script>
+// === Sadə “inspektor” qarşısını alma cəhdləri (tam zəmanət YOXDUR) ===
+
+// 1) Sağ klik menyusunu bağla
+document.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
+
+// 2) Məşhur qısayolları blokla
+document.addEventListener('keydown', function (e) {
+  // F12
+  if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
+
+  // Ctrl+Shift+I/J/C/K (Chrome devtools, konsol, və s.)
+  if (e.ctrlKey && e.shiftKey && ['I','J','C','K'].includes(e.key.toUpperCase())) {
+    e.preventDefault(); return false;
+  }
+
+  // Ctrl+U (view source), Ctrl+S (save)
+  if (e.ctrlKey && ['U','S'].includes(e.key.toUpperCase())) {
+    e.preventDefault(); return false;
+  }
+}, { passive: false });
+
+// 3) DevTools açıqdırmı? (ölçü fərqi ilə təxmini yoxlama)
+function isDevtoolsSizeHeuristic() {
+  const dw = Math.abs(window.outerWidth - window.innerWidth);
+  const dh = Math.abs(window.outerHeight - window.innerHeight);
+  return dw > 160 || dh > 160; // yan panel və ya alt panel fərqi
+}
+
+</script>
+    <script>
+        // ================= Main Exam Functions =================
+        let examTime = 60 * 60; // 60 minutes
+        let currentSection = 1;
+        let cameraStream = null;
+        let answeredQuestions = new Set();
+        let totalQuestions = 40;
+
+        const examTimer = document.getElementById('exam-timer');
+        const headerCamera = document.getElementById('header-camera');
+        const themeToggle = document.getElementById('theme-toggle');
+        const sectionTabs = document.querySelectorAll('.section-tab');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+        const progressIndicator = document.querySelector('.progress-indicator');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            startCamera();
+            startTimer();
+            enableSecurity();
+            createProgressIndicator();
+            switchSection(1);
+
+            themeToggle.addEventListener('click', toggleTheme);
+            sectionTabs.forEach(tab => tab.addEventListener('click', () => switchSection(tab.dataset.section)));
+            prevBtn.addEventListener('click', goToPrevSection);
+            nextBtn.addEventListener('click', goToNextSection);
+      
+            modalCancel.addEventListener('click', hideConfirmationModal);
+            modalConfirm.addEventListener('click', submitExam);
+
+            trackAnswerChanges();
+
+            // Highlight and Note functions
+            initHighlightAndNotes();
+        });
+
+        // ================== Camera ==================
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 320 }, height: { ideal: 240 } },
+                    audio: false
+                });
+                headerCamera.srcObject = cameraStream;
+            } catch (err) {
+                console.error('Camera error:', err);
+            }
+        }
+
+        // ================== Timer ==================
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                examTime--;
+                if (examTime <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                    return;
+                }
+                const minutes = Math.floor(examTime / 60);
+                const seconds = examTime % 60;
+                examTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (examTime <= 300) examTimer.style.color = '#ef4444';
+                if (examTime === 60) finishBtn.disabled = false;
+            }, 1000);
+        }
+
+        // ================== Sections ==================
+        function switchSection(sectionNumber) {
+            currentSection = parseInt(sectionNumber);
+            sectionTabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.section == sectionNumber);
+            });
+            prevBtn.style.visibility = currentSection === 1 ? 'hidden' : 'visible';
+            nextBtn.style.visibility = currentSection === 3 ? 'hidden' : 'visible';
+
+            const passageTitle = document.querySelector('.passage-section .section-title');
+            const passageContent = document.querySelector('.passage-content');
+            const questionsTitle = document.querySelector('.questions-section .section-title');
+            passageTitle.innerHTML = `<i class="fas fa-book-open"></i> Reading Passage - Section ${sectionNumber}`;
+            questionsTitle.innerHTML = `<i class="fas fa-question-circle"></i> Questions - Section ${sectionNumber}`;
+
+            passageContent.innerHTML = `
+                <h4>Section ${sectionNumber} Text</h4>
+                <p>This is a sample text for Section ${sectionNumber}. Each section contains different questions.</p>
+            `;
+        }
+        
+        function goToPrevSection() { 
+            if (currentSection > 1) switchSection(currentSection - 1); 
+        }
+        
+        function goToNextSection() { 
+            if (currentSection < 3) switchSection(currentSection + 1); 
+        }
+
+        // ================== Exam Modal ==================
+        function showConfirmationModal() { 
+            confirmationModal.style.display = 'flex'; 
+        }
+        
+        function hideConfirmationModal() { 
+            confirmationModal.style.display = 'none'; 
+        }
+        
+        function submitExam() {
+            if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
+            alert('Answers submitted!');
+            setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        }
+
+        // ================== Theme ==================
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            themeToggle.innerHTML = document.body.classList.contains('light-theme')
+                ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        }
+
+        // ================== Security ==================
+        function enableSecurity() {
+            document.addEventListener('contextmenu', (e) => {
+                if (!e.target.closest('.passage-content')) e.preventDefault();
+            });
+            document.addEventListener('selectstart', (e) => {
+                if (!e.target.closest('.passage-content')) e.preventDefault();
+            });
+            document.addEventListener('copy', (e) => {
+                if (!e.target.closest('.passage-content')) e.preventDefault();
+            });
+        }
+
+        // ================== Progress ==================
+        function createProgressIndicator() {
+            for (let i = 1; i <= totalQuestions; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                dot.textContent = i;
+                dot.dataset.questionId = i;
+                dot.addEventListener('click', () => scrollToQuestion(i));
+                progressIndicator.appendChild(dot);
+            }
+        }
+        
+        function scrollToQuestion(id) {
+            const el = document.querySelector(`[data-question-id="${id}"]`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                document.querySelectorAll('.progress-dot').forEach(dot => dot.classList.remove('current'));
+                document.querySelector(`.progress-dot[data-question-id="${id}"]`).classList.add('current');
+            }
+        }
+        
+        function trackAnswerChanges() {
+            document.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener('change', (e) => {
+                    const q = e.target.closest('.question');
+                    if (!q) return;
+                    answeredQuestions.add(parseInt(q.dataset.questionId));
+                    updateProgressIndicator();
+                });
+            });
+        }
+        
+        function updateProgressIndicator() {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const id = parseInt(dot.dataset.questionId);
+                dot.classList.toggle('answered', answeredQuestions.has(id));
+            });
+            if (answeredQuestions.size >= totalQuestions) finishBtn.disabled = false;
+        }
+
+        // ================== Highlight & Notes ==================
+        function initHighlightAndNotes() {
+            const passageContent = document.querySelector('.passage-content');
+            const contextMenu = document.getElementById('context-menu');
+            const colorOptions = document.getElementById('color-options');
+            const noteModal = document.getElementById('note-modal');
+            const noteText = document.getElementById('note-text');
+            const noteCancel = document.getElementById('note-cancel');
+            const noteSave = document.getElementById('note-save');
+            const noteTooltip = document.getElementById('note-tooltip');
+            const highlightOption = document.getElementById('highlight-option');
+            const addNoteOption = document.getElementById('add-note-option');
+
+            let currentSelection = null;
+            let selectedColor = 'yellow';
+
+            passageContent.addEventListener('mouseup', () => {
+                const selection = window.getSelection();
+                if (selection.toString().trim().length > 0) {
+                    currentSelection = { text: selection.toString(), range: selection.getRangeAt(0) };
+                } else currentSelection = null;
+            });
+
+            passageContent.addEventListener('contextmenu', (e) => {
+                if (currentSelection) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = e.pageX + 'px';
+                    contextMenu.style.top = e.pageY + 'px';
+                }
+            });
+
+            highlightOption.addEventListener('click', () => {
+                colorOptions.style.display = colorOptions.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    selectedColor = this.getAttribute('data-color');
+                    highlightSelection(selectedColor);
+                    contextMenu.style.display = 'none';
+                    colorOptions.style.display = 'none';
+                });
+            });
+
+            addNoteOption.addEventListener('click', () => {
+                contextMenu.style.display = 'none';
+                noteModal.style.display = 'block';
+            });
+            
+            noteCancel.addEventListener('click', () => { 
+                noteModal.style.display = 'none'; 
+                noteText.value = ''; 
+            });
+            
+            noteSave.addEventListener('click', () => {
+                const noteContent = noteText.value.trim();
+                if (noteContent) {
+                    addNoteToSelection(noteContent);
+                    noteModal.style.display = 'none';
+                    noteText.value = '';
+                }
+            });
+
+            function highlightSelection(color) {
+                if (currentSelection) {
+                    const span = document.createElement('span');
+                    span.className = `highlight ${color}`;
+                    try { 
+                        currentSelection.range.surroundContents(span); 
+                    } catch { 
+                        alert("Selection is too complex. Please select a smaller portion."); 
+                    }
+                }
+            }
+            
+            function addNoteToSelection(noteContent) {
+                if (currentSelection) {
+                    const span = document.createElement('span');
+                    span.className = `highlight ${selectedColor} note-indicator`;
+                    span.setAttribute('data-note', noteContent);
+                    try { 
+                        currentSelection.range.surroundContents(span); 
+                    } catch { 
+                        alert("Selection is too complex. Please select a smaller portion."); 
+                        return; 
+                    }
+
+                    span.addEventListener('mouseenter', (e) => {
+                        noteTooltip.textContent = noteContent;
+                        noteTooltip.style.display = 'block';
+                        noteTooltip.style.left = e.pageX + 'px';
+                        noteTooltip.style.top = (e.pageY - 40) + 'px';
+                    });
+                    
+                    span.addEventListener('mouseleave', () => noteTooltip.style.display = 'none');
+                }
+            }
+
+            document.addEventListener('click', (e) => {
+                if (!contextMenu.contains(e.target)) {
+                    contextMenu.style.display = 'none';
+                    colorOptions.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Exam Environment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --correct: #22c55e;
+            --incorrect: #ef4444;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body.light-theme {
+            --dark: #f1f5f9;
+            --darker: #e2e8f0;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .light-theme header {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .light-theme .logo {
+            color: var(--dark);
+        }
+
+        .exam-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .timer {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer i {
+            color: var(--danger);
+        }
+
+        .camera-feed-header {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+
+        .camera-feed-header video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .theme-toggle {
+            background: rgba(37, 99, 235, 0.15);
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(37, 99, 235, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 180px);
+            padding: 30px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Exam Layout */
+        .exam-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 992px) {
+            .exam-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Task Section */
+        .task-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .light-theme .task-section {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-content {
+            flex: 1;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .task-image {
+            max-width: 100%;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .word-count {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .light-theme .word-count {
+            background: rgba(241, 245, 249, 0.5);
+        }
+
+        .word-count .count {
+            font-weight: bold;
+        }
+
+        .word-count .min-words {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .word-count .valid {
+            color: var(--success);
+        }
+
+        .word-count .invalid {
+            color: var(--danger);
+        }
+
+        /* Writing Section */
+        .writing-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .light-theme .writing-section {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+        }
+
+        .writing-area {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.5);
+            color: var(--text);
+            resize: none;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .light-theme .writing-area {
+            background: rgba(241, 245, 249, 0.7);
+            color: #1e293b;
+        }
+
+        .writing-area:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(29, 78, 216, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            background: rgba(148, 163, 184, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-secondary);
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-size: 16px;
+            margin-top: 40px;
+        }
+
+        .light-theme footer {
+            background: rgba(255, 255, 255, 0.9);
+            color: #475569;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        /* Section Tabs */
+        .section-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-tab {
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .light-theme .section-tab {
+            background: rgba(241, 245, 249, 0.7);
+        }
+
+        .section-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-theme .modal {
+            background: white;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .modal-text {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            margin: 15px 0;
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .chart-bar {
+            width: 40px;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .chart-bar-value {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .data-table th {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        /* Security Warning */
+        .security-warning {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--danger);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            max-width: 300px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .exam-info {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .chart-container {
+                height: 150px;
+                gap: 10px;
+            }
+            
+            .chart-bar {
+                width: 30px;
+            }
+            
+            .security-warning {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Security Warning -->
+    <div class="security-warning" id="security-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="warning-message"></span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-globe-americas"></i>
+                <span>Secure Exam Environment</span>
+            </div>
+            <div class="exam-info">
+                <div class="timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="exam-timer">60:00</span>
+                </div>
+                <div class="camera-feed-header">
+                    <video id="header-camera" autoplay muted></video>
+                </div>
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="section-tabs">
+            <div class="section-tab active" data-section="1">Task 1</div>
+            <div class="section-tab" data-section="2">Task 2</div>
+        </div>
+        
+        <div class="exam-container">
+            <div class="task-section">
+                <h3 class="section-title">
+                    <i class="fas fa-pen"></i>
+                    <span id="task-title">Writing Task 1</span>
+                </h3>
+                
+                <div class="task-content" id="task-content">
+                    <p>The table below shows the number of internet users (in millions) in four different countries between 2010 and 2020. Write a report describing the data.</p>
+                    
+                    <table class="data-table">
+                        <tr>
+                            <th>Country</th>
+                            <th>2010</th>
+                            <th>2015</th>
+                            <th>2020</th>
+                        </tr>
+                        <tr>
+                            <td>America</td>
+                            <td>245</td>
+                            <td>280</td>
+                            <td>312</td>
+                        </tr>
+                        <tr>
+                            <td>Germany</td>
+                            <td>65</td>
+                            <td>72</td>
+                            <td>79</td>
+                        </tr>
+                        <tr>
+                            <td>Japan</td>
+                            <td>99</td>
+                            <td>110</td>
+                            <td>118</td>
+                        </tr>
+                        <tr>
+                            <td>Brazil</td>
+                            <td>86</td>
+                            <td>140</td>
+                            <td>195</td>
+                        </tr>
+                    </table>
+                    
+                    <p>Highlight the main trends and make comparisons where relevant.</p>
+                </div>
+                
+                <div class="word-count">
+                    <div>
+                        <span class="min-words">Minimum word count: </span>
+                        <span class="count" id="min-words">150</span>
+                    </div>
+                    <div id="word-count-display" class="invalid">0 words</div>
+                </div>
+            </div>
+            
+            <div class="writing-section">
+                <h3 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    <span id="answer-title">Your Answer - Task 1</span>
+                </h3>
+                
+                <textarea class="writing-area" id="writing-area" placeholder="Write your answer here..." rows="15"></textarea>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" id="prev-btn">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="btn" id="next-btn">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+               
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Secure Exam Environment. All rights reserved.</p>
+            <p>This is a demonstration version of the secure exam environment.</p>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="confirmation-modal">
+        <div class="modal">
+            <h3 class="modal-title">Finish Exam</h3>
+            <p class="modal-text">Are you sure you want to finish the exam? This action cannot be undone. Your answers will be reviewed and your result will be calculated.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const examTimer = document.getElementById('exam-timer');
+        const headerCamera = document.getElementById('header-camera');
+        const themeToggle = document.getElementById('theme-toggle');
+        const sectionTabs = document.querySelectorAll('.section-tab');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const finishBtn = document.getElementById('finish-btn');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+        const writingArea = document.getElementById('writing-area');
+        const wordCountDisplay = document.getElementById('word-count-display');
+        const securityWarning = document.getElementById('security-warning');
+        const warningMessage = document.getElementById('warning-message');
+        const taskTitle = document.getElementById('task-title');
+        const taskContent = document.getElementById('task-content');
+        const answerTitle = document.getElementById('answer-title');
+        const minWords = document.getElementById('min-words');
+
+        // Exam parameters
+        let examTime = 60 * 60; // 60 minutes
+        let currentSection = 1;
+        let cameraStream = null;
+        let task1Words = 0;
+        let task2Words = 0;
+        let securityViolations = 0;
+        let userAnswers = {
+            task1: "",
+            task2: ""
+        };
+
+        // Security measures
+        function enableSecurity() {
+            // Prevent right-click and multiple selection
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showSecurityWarning("Right-click operation is prohibited!");
+            });
+            
+            // Prevent selection and copying
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+                showSecurityWarning("Text selection is prohibited!");
+            });
+            
+            // Prevent copying
+            document.addEventListener('copy', (e) => {
+                e.preventDefault();
+                showSecurityWarning("Text copying is prohibited!");
+            });
+            
+            // Prevent pasting
+            document.addEventListener('paste', (e) => {
+                e.preventDefault();
+                showSecurityWarning("Text pasting is prohibited!");
+            });
+            
+            // Prevent cutting
+            document.addEventListener('cut', (e) => {
+                e.preventDefault();
+                showSecurityWarning("Text cutting is prohibited!");
+            });
+            
+            // Prevent inspect element
+            document.addEventListener('keydown', (e) => {
+                // F12, Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+U
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) || 
+                    (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
+                    e.preventDefault();
+                    showSecurityWarning("This operation is prohibited!");
+                }
+                
+                // Print Screen
+                if (e.key === 'PrintScreen') {
+                    e.preventDefault();
+                    showSecurityWarning("Taking screenshots is prohibited!");
+                }
+            });
+        }
+        
+       
+           
+
+        // Initialize the app
+        function init() {
+            // Activate camera
+            startCamera();
+            
+            // Start timer
+            startTimer();
+            
+            // Security measures
+            enableSecurity();
+            
+            // Event listeners
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            sectionTabs.forEach(tab => {
+                tab.addEventListener('click', () => switchSection(tab.dataset.section));
+            });
+            
+            prevBtn.addEventListener('click', goToPrevSection);
+            nextBtn.addEventListener('click', goToNextSection);
+            finishBtn.addEventListener('click', showConfirmationModal);
+            modalCancel.addEventListener('click', hideConfirmationModal);
+            modalConfirm.addEventListener('click', submitExam);
+            
+            // Track writing changes
+            writingArea.addEventListener('input', updateWordCount);
+            
+            // Load first section
+            switchSection(1);
+        }
+        
+        // Update word count
+        function updateWordCount() {
+            const text = writingArea.value.trim();
+            const words = text === '' ? 0 : text.split(/\s+/).length;
+            
+            if (currentSection === 1) {
+                task1Words = words;
+                userAnswers.task1 = text;
+            } else {
+                task2Words = words;
+                userAnswers.task2 = text;
+            }
+            
+            wordCountDisplay.textContent = `${words} words`;
+            
+            const minWordsRequired = currentSection === 1 ? 150 : 250;
+            if (words >= minWordsRequired) {
+                wordCountDisplay.classList.remove('invalid');
+                wordCountDisplay.classList.add('valid');
+            } else {
+                wordCountDisplay.classList.remove('valid');
+                wordCountDisplay.classList.add('invalid');
+            }
+            
+            // Enable "Finish" button if both tasks have enough words
+            updateFinishButton();
+        }
+        
+        // Update finish button
+        function updateFinishButton() {
+            if (task1Words >= 150 && task2Words >= 250) {
+                finishBtn.disabled = false;
+            } else {
+                finishBtn.disabled = true;
+            }
+        }
+        
+        // Activate camera
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 320 },
+                        height: { ideal: 240 }
+                    }, 
+                    audio: false 
+                });
+                
+                headerCamera.srcObject = cameraStream;
+            } catch (err) {
+                console.error('Camera error:', err);
+                showSecurityWarning("Camera could not be activated. Security risk!");
+            }
+        }
+        
+        // Timer
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                examTime--;
+                
+                if (examTime <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                    return;
+                }
+                
+                const minutes = Math.floor(examTime / 60);
+                const seconds = examTime % 60;
+                
+                examTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Timer turns red when 5 minutes remain
+                if (examTime <= 300) {
+                    examTimer.style.color = '#ef4444';
+                }
+            }, 1000);
+        }
+        
+        // Toggle theme
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            themeToggle.innerHTML = isLight ? 
+                '<i class="fas fa-moon"></i>' : 
+                '<i class="fas fa-sun"></i>';
+        }
+        
+        // Switch section
+        function switchSection(sectionNumber) {
+            currentSection = parseInt(sectionNumber);
+            
+            // Update active tab
+            sectionTabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.section === sectionNumber) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update navigation buttons
+            prevBtn.style.visibility = currentSection === 1 ? 'hidden' : 'visible';
+            nextBtn.style.visibility = currentSection === 2 ? 'hidden' : 'visible';
+            
+            // Update content
+            updateSectionContent(currentSection);
+        }
+        
+        // Update section content
+        function updateSectionContent(section) {
+            if (section === 1) {
+                taskTitle.textContent = "Writing Task 1";
+                answerTitle.textContent = "Your Answer - Task 1";
+                minWords.textContent = "150";
+                
+                taskContent.innerHTML = `
+                    <p>The table below shows the number of internet users (in millions) in four different countries between 2010 and 2020. Write a report describing the data.</p>
+                    
+                    <table class="data-table">
+                        <tr>
+                            <th>Country</th>
+                            <th>2010</th>
+                            <th>2015</th>
+                            <th>2020</th>
+                        </tr>
+                        <tr>
+                            <td>America</td>
+                            <td>245</td>
+                            <td>280</td>
+                            <td>312</td>
+                        </tr>
+                        <tr>
+                            <td>Germany</td>
+                            <td>65</td>
+                            <td>72</td>
+                            <td>79</td>
+                        </tr>
+                        <tr>
+                            <td>Japan</td>
+                            <td>99</td>
+                            <td>110</td>
+                            <td>118</td>
+                        </tr>
+                        <tr>
+                            <td>Brazil</td>
+                            <td>86</td>
+                            <td>140</td>
+                            <td>195</td>
+                        </tr>
+                    </table>
+                    
+                    <p>Highlight the main trends and make comparisons where relevant.</p>
+                `;
+                
+                // Load Task 1 answer
+                writingArea.value = userAnswers.task1;
+                
+            } else {
+                taskTitle.textContent = "Writing Task 2";
+                answerTitle.textContent = "Your Answer - Task 2";
+                minWords.textContent = "250";
+                
+                taskContent.innerHTML = `
+                    <p>Write an essay on the following topic:</p>
+                    
+                    <p><strong>Some people believe that children's time spent with electronic devices (smartphones, tablets, computers) for entertainment should be limited and they should be encouraged to read books instead.</strong></p>
+                    
+                    <p>To what extent do you agree or disagree with this opinion? Use relevant examples to support your position.</p>
+                    
+                    <p>In your essay, consider the following:</p>
+                    <ul>
+                        <li>The impact of electronic devices on children's development</li>
+                        <li>The benefits of reading books</li>
+                        <li>The importance of a balanced approach</li>
+                    </ul>
+                `;
+                
+                // Load Task 2 answer
+                writingArea.value = userAnswers.task2;
+            }
+            
+            // Update word count
+            updateWordCount();
+        }
+        
+        // Go to previous section
+        function goToPrevSection() {
+            if (currentSection > 1) {
+                switchSection(currentSection - 1);
+            }
+        }
+        
+        // Go to next section
+        function goToNextSection() {
+            if (currentSection < 2) {
+                switchSection(currentSection + 1);
+            }
+        }
+        
+        // Show confirmation modal
+        function showConfirmationModal() {
+            // Show warning if word count doesn't meet requirements
+            if (task1Words < 150 || task2Words < 250) {
+                alert('Warning: You must write at least 150 words for Task 1 and 250 words for Task 2. Do you want to continue finishing the exam?');
+            }
+            
+            confirmationModal.style.display = 'flex';
+        }
+        
+        // Hide confirmation modal
+        function hideConfirmationModal() {
+            confirmationModal.style.display = 'none';
+        }
+        
+        // Submit exam
+        function submitExam() {
+            // Stop camera stream
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Here would be your code to send answers to the server
+            alert('Your answers have been successfully submitted! Results are being calculated...');
+            
+            // Redirect to main page
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
