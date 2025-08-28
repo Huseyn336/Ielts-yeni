@@ -405,7 +405,7 @@
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-globe-americas"></i>
-                <span>IELTS  Sinaq İmtahani Platforması</span>
+                <span>IELTS Sinaq İmtahani Platforması</span>
             </div>
             <div class="date-time" id="date-time">
                 <i class="fas fa-calendar"></i>
@@ -426,7 +426,7 @@
     <main class="main-content">
         <div class="login-container">
             <div class="login-header">
-                <h2 class="login-title">IELTS  Sinaq İmtahani Platforması</h2>
+                <h2 class="login-title">IELTS Sinaq İmtahani Platforması</h2>
                 <p class="login-subtitle">Hesabınıza daxil olmaq üçün məlumatlarınızı daxil edin</p>
             </div>
             
@@ -454,7 +454,7 @@
                     </p>
                     
                     <!-- Kamera önizləməsi -->
-                    <video id="camera-feed" class="camera-feed"></video>
+                    <video id="camera-feed" class="camera-feed" autoplay playsinline></video>
                     
                     <!-- Çəkilmiş şəkil önizləməsi -->
                     <img id="image-preview" class="image-preview">
@@ -463,11 +463,17 @@
                         <button type="button" class="btn btn-success" id="capture-btn">
                             <i class="fas fa-camera-retro"></i> Şəkil Çək
                         </button>
+                        <button type="button" class="btn btn-secondary" id="retake-btn">
+                            <i class="fas fa-redo"></i> Yenidən Çək
+                        </button>
                     </div>
                     
                     <div class="camera-buttons">
                         <button type="button" class="btn btn-secondary" id="open-camera-btn">
                             <i class="fas fa-video"></i> Kameranı Aç
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="close-camera-btn" style="display: none;">
+                            <i class="fas fa-times"></i> Kameranı Bağla
                         </button>
                     </div>
                     
@@ -481,10 +487,9 @@
                     <div class="error-message" id="image-error">Zəhmət olmasa şəkil çəkin</div>
                 </div>
                 
-             <button type="button" class="btn btn-block" onclick="window.location.href='dashboard.html'">
-    <i class="fas fa-sign-in-alt"></i> Daxil ol
-</button>
-
+                <button type="submit" class="btn btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Daxil ol
+                </button>
             </form>
         </div>
     </main>
@@ -504,7 +509,9 @@
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const openCameraBtn = document.getElementById('open-camera-btn');
+        const closeCameraBtn = document.getElementById('close-camera-btn');
         const captureBtn = document.getElementById('capture-btn');
+        const retakeBtn = document.getElementById('retake-btn');
         const cameraFeed = document.getElementById('camera-feed');
         const imagePreview = document.getElementById('image-preview');
         const cameraControls = document.getElementById('camera-controls');
@@ -526,7 +533,9 @@
             themeToggle.addEventListener('click', toggleTheme);
             loginForm.addEventListener('submit', handleLogin);
             openCameraBtn.addEventListener('click', openCamera);
+            closeCameraBtn.addEventListener('click', closeCamera);
             captureBtn.addEventListener('click', captureImage);
+            retakeBtn.addEventListener('click', retakePhoto);
             
             // Tarix və saatı yenilə
             updateDateTime();
@@ -548,7 +557,11 @@
             try {
                 // Kamera girişini istə
                 stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user' }, 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }, 
                     audio: false 
                 });
                 
@@ -563,6 +576,10 @@
                 cameraControls.style.display = 'flex';
                 capturedContainer.style.display = 'none';
                 
+                // Düymələri tənzimlə
+                openCameraBtn.style.display = 'none';
+                closeCameraBtn.style.display = 'inline-block';
+                
                 // Statusu yenilə
                 cameraStatus.style.backgroundColor = '#10b981';
                 document.querySelector('.camera-text').innerHTML = `
@@ -576,6 +593,32 @@
                 imageError.textContent = 'Kameraya giriş icazəsi verilmədi. Zəhmət olmasa icazəni yoxlayın.';
                 imageError.style.display = 'block';
             }
+        }
+        
+        // Kameranı bağla
+        function closeCamera() {
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                stream = null;
+            }
+            
+            // Kamera önizləməsini gizlə
+            cameraFeed.style.display = 'none';
+            
+            // Kontrolları gizlə
+            cameraControls.style.display = 'none';
+            
+            // Düymələri tənzimlə
+            openCameraBtn.style.display = 'inline-block';
+            closeCameraBtn.style.display = 'none';
+            
+            // Statusu yenilə
+            cameraStatus.style.backgroundColor = '#ef4444';
+            document.querySelector('.camera-text').innerHTML = `
+                <span class="camera-indicator"></span>
+                Kamera aktivləşdirilməyib
+            `;
         }
         
         // Şəkil çək
@@ -609,8 +652,9 @@
                 Şəkil uğurla çəkildi
             `;
             
-            // Kontrolları gizlə
-            cameraControls.style.display = 'none';
+            // Kontrolları dəyiş
+            captureBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-block';
             
             // Uğur mesajını göstər
             capturedContainer.style.display = 'block';
@@ -619,13 +663,23 @@
             closeCamera();
         }
         
-        // Kameranı bağla
-        function closeCamera() {
-            if (stream) {
-                const tracks = stream.getTracks();
-                tracks.forEach(track => track.stop());
-                stream = null;
-            }
+        // Şəkli yenidən çək
+        function retakePhoto() {
+            // Şəkil məlumatlarını sıfırla
+            capturedImageData = null;
+            
+            // Şəkil önizləməsini gizlə
+            imagePreview.style.display = 'none';
+            
+            // Uğur mesajını gizlə
+            capturedContainer.style.display = 'none';
+            
+            // Kontrolları dəyiş
+            captureBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
+            
+            // Kameranı yenidən aç
+            openCamera();
         }
         
         // Girişi idarə et
@@ -659,7 +713,7 @@
             }
             
             // Əgər etibarlıdırsa, dashboard-a yönləndir
-            if (isvalid) {
+            if (isValid) {
                 // Bu hissədə şəkil məlumatını serverə göndərə bilərsiniz
                 // capturedImageData dəyişəni base64 formatında şəkil saxlayır
                 
